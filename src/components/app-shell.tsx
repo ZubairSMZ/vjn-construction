@@ -1,0 +1,121 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Building2,
+  Package,
+  Wallet,
+  FileBarChart,
+  Activity,
+  HardHat,
+  Bell,
+  Search,
+  Sun,
+  Moon,
+  Menu,
+} from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+
+const nav = [
+  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/entries", label: "Daily Entries", icon: ClipboardList },
+  { to: "/sites", label: "Sites", icon: Building2 },
+  { to: "/materials", label: "Inventory", icon: Package },
+  { to: "/expenses", label: "Expenses", icon: Wallet },
+  { to: "/reports", label: "Reports", icon: FileBarChart },
+  { to: "/activity", label: "Activity", icon: Activity },
+] as const;
+
+export function AppShell({ children, title, subtitle, actions }: { children: ReactNode; title: string; subtitle?: string; actions?: ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [open, setOpen] = useState(false);
+  const [dark, setDark] = useState(true);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+  }, [dark]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border transform transition-transform lg:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center gap-2 px-5 h-16 border-b border-sidebar-border">
+          <div className="grid place-items-center size-9 rounded-md bg-primary text-primary-foreground">
+            <HardHat className="size-5" />
+          </div>
+          <div>
+            <div className="font-display text-lg uppercase tracking-wide leading-none">SiteTrack</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-sidebar-foreground/60">Daily Operations</div>
+          </div>
+        </div>
+        <nav className="p-3 space-y-1">
+          {nav.map(({ to, label, icon: Icon }) => {
+            const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
+                  active
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-sidebar-primary)_30%,transparent)]"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                }`}
+              >
+                <Icon className="size-4" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+        <div className="absolute bottom-0 inset-x-0 p-3 border-t border-sidebar-border">
+          <div className="flex items-center gap-3 px-2 py-2">
+            <div className="size-9 rounded-full bg-primary/20 grid place-items-center text-primary font-semibold">RM</div>
+            <div className="text-xs">
+              <div className="font-semibold text-sidebar-foreground">Rakesh Mehta</div>
+              <div className="text-sidebar-foreground/60">Site Engineer · Admin</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {open && <div className="fixed inset-0 z-30 bg-black/60 lg:hidden" onClick={() => setOpen(false)} />}
+
+      {/* Main */}
+      <div className="lg:pl-64">
+        <header className="sticky top-0 z-20 h-16 bg-background/85 backdrop-blur border-b border-border flex items-center gap-3 px-4 lg:px-8">
+          <button className="lg:hidden p-2 -ml-2" onClick={() => setOpen(true)} aria-label="Open menu">
+            <Menu className="size-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display text-xl uppercase tracking-wide leading-none truncate">{title}</h1>
+            {subtitle && <p className="text-xs text-muted-foreground mt-1 truncate">{subtitle}</p>}
+          </div>
+          <div className="hidden md:flex items-center gap-2 px-3 h-9 rounded-md bg-muted/60 border border-border w-72">
+            <Search className="size-4 text-muted-foreground" />
+            <input className="bg-transparent outline-none text-sm w-full placeholder:text-muted-foreground" placeholder="Search sites, materials, users…" />
+          </div>
+          <button
+            className="grid place-items-center size-9 rounded-md border border-border hover:bg-muted"
+            onClick={() => setDark((d) => !d)}
+            aria-label="Toggle theme"
+          >
+            {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </button>
+          <button className="relative grid place-items-center size-9 rounded-md border border-border hover:bg-muted" aria-label="Notifications">
+            <Bell className="size-4" />
+            <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />
+          </button>
+        </header>
+        <main className="px-4 lg:px-8 py-6 lg:py-8">
+          {actions && <div className="mb-6 flex flex-wrap gap-2">{actions}</div>}
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
