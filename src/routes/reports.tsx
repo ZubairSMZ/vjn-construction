@@ -22,7 +22,7 @@ const reports = [
 function Reports() {
   return (
     <AppShell title="Reports & Exports" subtitle="Filter, preview, and export to PDF or Excel">
-      <Panel title={<span>Filters</span> as unknown as string}>
+      <Panel title="Filters">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Field label="From"><input type="date" className={inputCls} /></Field>
           <Field label="To"><input type="date" className={inputCls} /></Field>

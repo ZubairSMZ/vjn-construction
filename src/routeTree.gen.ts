@@ -9,8 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitesRouteImport } from './routes/sites'
+import { Route as ReportsRouteImport } from './routes/reports'
+import { Route as MaterialsRouteImport } from './routes/materials'
+import { Route as ExpensesRouteImport } from './routes/expenses'
+import { Route as EntriesRouteImport } from './routes/entries'
+import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SitesRoute = SitesRouteImport.update({
+  id: '/sites',
+  path: '/sites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRoute = ReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaterialsRoute = MaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpensesRoute = ExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntriesRoute = EntriesRouteImport.update({
+  id: '/entries',
+  path: '/entries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActivityRoute = ActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +55,116 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/entries': typeof EntriesRoute
+  '/expenses': typeof ExpensesRoute
+  '/materials': typeof MaterialsRoute
+  '/reports': typeof ReportsRoute
+  '/sites': typeof SitesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/entries': typeof EntriesRoute
+  '/expenses': typeof ExpensesRoute
+  '/materials': typeof MaterialsRoute
+  '/reports': typeof ReportsRoute
+  '/sites': typeof SitesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
+  '/entries': typeof EntriesRoute
+  '/expenses': typeof ExpensesRoute
+  '/materials': typeof MaterialsRoute
+  '/reports': typeof ReportsRoute
+  '/sites': typeof SitesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/activity'
+    | '/entries'
+    | '/expenses'
+    | '/materials'
+    | '/reports'
+    | '/sites'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/activity'
+    | '/entries'
+    | '/expenses'
+    | '/materials'
+    | '/reports'
+    | '/sites'
+  id:
+    | '__root__'
+    | '/'
+    | '/activity'
+    | '/entries'
+    | '/expenses'
+    | '/materials'
+    | '/reports'
+    | '/sites'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityRoute: typeof ActivityRoute
+  EntriesRoute: typeof EntriesRoute
+  ExpensesRoute: typeof ExpensesRoute
+  MaterialsRoute: typeof MaterialsRoute
+  ReportsRoute: typeof ReportsRoute
+  SitesRoute: typeof SitesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sites': {
+      id: '/sites'
+      path: '/sites'
+      fullPath: '/sites'
+      preLoaderRoute: typeof SitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports': {
+      id: '/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/materials': {
+      id: '/materials'
+      path: '/materials'
+      fullPath: '/materials'
+      preLoaderRoute: typeof MaterialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expenses': {
+      id: '/expenses'
+      path: '/expenses'
+      fullPath: '/expenses'
+      preLoaderRoute: typeof ExpensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entries': {
+      id: '/entries'
+      path: '/entries'
+      fullPath: '/entries'
+      preLoaderRoute: typeof EntriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityRoute: ActivityRoute,
+  EntriesRoute: EntriesRoute,
+  ExpensesRoute: ExpensesRoute,
+  MaterialsRoute: MaterialsRoute,
+  ReportsRoute: ReportsRoute,
+  SitesRoute: SitesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
