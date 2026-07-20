@@ -30,12 +30,38 @@ const nav = [
 
 export function AppShell({ children, title, subtitle, actions }: { children: ReactNode; title: string; subtitle?: string; actions?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
+  const [user, setUser] = useState<{ name: string; email: string; role: string; initials: string } | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user || !mounted) return;
+      const { data: profile } = await supabase.from("profiles").select("full_name, email").eq("id", u.user.id).maybeSingle();
+      const { data: roleRow } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id).maybeSingle();
+      const name = profile?.full_name || u.user.email?.split("@")[0] || "User";
+      const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+      setUser({
+        name,
+        email: profile?.email || u.user.email || "",
+        role: roleRow?.role === "admin" ? "Admin" : "Staff",
+        initials,
+      });
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
