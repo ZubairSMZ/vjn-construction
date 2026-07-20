@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell } from "../components/app-shell";
-import { Panel, timeAgo } from "../components/ui-bits";
-import { activity } from "../lib/mock-data";
+import { AppShell } from "@/components/app-shell";
+import { Panel, timeAgo } from "@/components/ui-bits";
+import { activity } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/activity")({
+export const Route = createFileRoute("/_authenticated/activity")({
   head: () => ({ meta: [{ title: "Activity Log — SiteTrack" }] }),
   component: ActivityPage,
 });

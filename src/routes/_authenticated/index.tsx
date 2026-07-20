@@ -19,8 +19,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { AppShell } from "../components/app-shell";
-import { Badge, Btn, Panel, ProgressBar, StatCard, timeAgo } from "../components/ui-bits";
+import { AppShell } from "@/components/app-shell";
+import { Badge, Btn, Panel, ProgressBar, StatCard, timeAgo } from "@/components/ui-bits";
 import {
   activity,
   dailyEntries,
@@ -33,9 +33,9 @@ import {
   sites,
   trendExpense,
   trendLabor,
-} from "../lib/mock-data";
+} from "@/lib/mock-data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [{ title: "Dashboard — SiteTrack" }, { name: "description", content: "Today's labor, materials, expenses and site progress at a glance." }],
   }),

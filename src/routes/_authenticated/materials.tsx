@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Package } from "lucide-react";
-import { AppShell } from "../components/app-shell";
-import { Badge, Panel, StatCard } from "../components/ui-bits";
-import { inventory, materialPurchases, materialUsage } from "../lib/mock-data";
+import { AppShell } from "@/components/app-shell";
+import { Badge, Panel, StatCard } from "@/components/ui-bits";
+import { inventory, materialPurchases, materialUsage } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/materials")({
+export const Route = createFileRoute("/_authenticated/materials")({
   head: () => ({ meta: [{ title: "Inventory — SiteTrack" }] }),
   component: Materials,
 });

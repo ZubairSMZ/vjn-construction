@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -13,8 +13,10 @@ import {
   Sun,
   Moon,
   Menu,
+  LogOut,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -28,12 +30,38 @@ const nav = [
 
 export function AppShell({ children, title, subtitle, actions }: { children: ReactNode; title: string; subtitle?: string; actions?: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
+  const [user, setUser] = useState<{ name: string; email: string; role: string; initials: string } | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user || !mounted) return;
+      const { data: profile } = await supabase.from("profiles").select("full_name, email").eq("id", u.user.id).maybeSingle();
+      const { data: roleRow } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id).maybeSingle();
+      const name = profile?.full_name || u.user.email?.split("@")[0] || "User";
+      const initials = name.split(" ").map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+      setUser({
+        name,
+        email: profile?.email || u.user.email || "",
+        role: roleRow?.role === "admin" ? "Admin" : "Staff",
+        initials,
+      });
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -74,11 +102,21 @@ export function AppShell({ children, title, subtitle, actions }: { children: Rea
         </nav>
         <div className="absolute bottom-0 inset-x-0 p-3 border-t border-sidebar-border">
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="size-9 rounded-full bg-primary/20 grid place-items-center text-primary font-semibold">RM</div>
-            <div className="text-xs">
-              <div className="font-semibold text-sidebar-foreground">Rakesh Mehta</div>
-              <div className="text-sidebar-foreground/60">Site Engineer · Admin</div>
+            <div className="size-9 rounded-full bg-primary/20 grid place-items-center text-primary font-semibold">
+              {user?.initials ?? "··"}
             </div>
+            <div className="text-xs min-w-0 flex-1">
+              <div className="font-semibold text-sidebar-foreground truncate">{user?.name ?? "Loading…"}</div>
+              <div className="text-sidebar-foreground/60 truncate">{user ? `${user.email} · ${user.role}` : ""}</div>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="grid place-items-center size-8 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogOut className="size-4" />
+            </button>
           </div>
         </div>
       </aside>
