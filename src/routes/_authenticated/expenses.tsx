@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Pie, PieChart, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { AppShell } from "../components/app-shell";
-import { Badge, Panel, StatCard } from "../components/ui-bits";
-import { expenses, fmtCurrency, materialPurchases, siteName } from "../lib/mock-data";
+import { AppShell } from "@/components/app-shell";
+import { Badge, Panel, StatCard } from "@/components/ui-bits";
+import { expenses, fmtCurrency, materialPurchases, siteName } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/_authenticated/expenses")({
   head: () => ({ meta: [{ title: "Expenses — SiteTrack" }] }),

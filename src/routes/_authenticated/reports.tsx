@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FileSpreadsheet, FileText, Filter } from "lucide-react";
-import { AppShell } from "../components/app-shell";
-import { Btn, Field, Panel, inputCls } from "../components/ui-bits";
+import { AppShell } from "@/components/app-shell";
+import { Btn, Field, Panel, inputCls } from "@/components/ui-bits";
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports — SiteTrack" }] }),
