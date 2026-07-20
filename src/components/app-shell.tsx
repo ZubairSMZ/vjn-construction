@@ -102,11 +102,21 @@ export function AppShell({ children, title, subtitle, actions }: { children: Rea
         </nav>
         <div className="absolute bottom-0 inset-x-0 p-3 border-t border-sidebar-border">
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="size-9 rounded-full bg-primary/20 grid place-items-center text-primary font-semibold">RM</div>
-            <div className="text-xs">
-              <div className="font-semibold text-sidebar-foreground">Rakesh Mehta</div>
-              <div className="text-sidebar-foreground/60">Site Engineer · Admin</div>
+            <div className="size-9 rounded-full bg-primary/20 grid place-items-center text-primary font-semibold">
+              {user?.initials ?? "··"}
             </div>
+            <div className="text-xs min-w-0 flex-1">
+              <div className="font-semibold text-sidebar-foreground truncate">{user?.name ?? "Loading…"}</div>
+              <div className="text-sidebar-foreground/60 truncate">{user ? `${user.email} · ${user.role}` : ""}</div>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="grid place-items-center size-8 rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogOut className="size-4" />
+            </button>
           </div>
         </div>
       </aside>
