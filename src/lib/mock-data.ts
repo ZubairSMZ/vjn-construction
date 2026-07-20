@@ -40,22 +40,23 @@ export const fmtCurrency = (n: number) =>
 
 export const siteName = (id: string) => sites.find((s) => s.id === id)?.name ?? "—";
 
-export const trendLabor = [
-  { day: "Mon", workers: 142 },
-  { day: "Tue", workers: 156 },
-  { day: "Wed", workers: 138 },
-  { day: "Thu", workers: 164 },
-  { day: "Fri", workers: 172 },
-  { day: "Sat", workers: 158 },
-  { day: "Sun", workers: 130 },
+export const trendLabor: { day: string; workers: number }[] = [
+  { day: "Mon", workers: 0 },
+  { day: "Tue", workers: 0 },
+  { day: "Wed", workers: 0 },
+  { day: "Thu", workers: 0 },
+  { day: "Fri", workers: 0 },
+  { day: "Sat", workers: 0 },
+  { day: "Sun", workers: 0 },
 ];
 
-export const trendExpense = [
-  { day: "Mon", amount: 68000 },
-  { day: "Tue", amount: 92000 },
-  { day: "Wed", amount: 54000 },
-  { day: "Thu", amount: 112000 },
-  { day: "Fri", amount: 86000 },
-  { day: "Sat", amount: 74000 },
-  { day: "Sun", amount: 67200 },
+export const trendExpense: { day: string; amount: number }[] = [
+  { day: "Mon", amount: 0 },
+  { day: "Tue", amount: 0 },
+  { day: "Wed", amount: 0 },
+  { day: "Thu", amount: 0 },
+  { day: "Fri", amount: 0 },
+  { day: "Sat", amount: 0 },
+  { day: "Sun", amount: 0 },
 ];
+
