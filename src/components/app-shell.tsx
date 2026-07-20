@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -13,8 +13,10 @@ import {
   Sun,
   Moon,
   Menu,
+  LogOut,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
