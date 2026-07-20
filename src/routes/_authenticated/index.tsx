@@ -35,7 +35,7 @@ import {
   trendLabor,
 } from "../lib/mock-data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [{ title: "Dashboard — SiteTrack" }, { name: "description", content: "Today's labor, materials, expenses and site progress at a glance." }],
   }),

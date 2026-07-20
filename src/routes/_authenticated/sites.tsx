@@ -4,7 +4,7 @@ import { AppShell } from "../components/app-shell";
 import { Badge, Panel, ProgressBar } from "../components/ui-bits";
 import { dailyEntries, expenses, materialPurchases, sites } from "../lib/mock-data";
 
-export const Route = createFileRoute("/sites")({
+export const Route = createFileRoute("/_authenticated/sites")({
   head: () => ({ meta: [{ title: "Sites — SiteTrack" }] }),
   component: SitesPage,
 });

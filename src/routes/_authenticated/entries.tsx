@@ -5,7 +5,7 @@ import { AppShell } from "../components/app-shell";
 import { Badge, Btn, Field, Panel, inputCls, timeAgo } from "../components/ui-bits";
 import { dailyEntries, fmtCurrency, materialPurchases, materialUsage, expenses, siteName, sites } from "../lib/mock-data";
 
-export const Route = createFileRoute("/entries")({
+export const Route = createFileRoute("/_authenticated/entries")({
   head: () => ({ meta: [{ title: "Daily Entries — SiteTrack" }] }),
   component: Entries,
 });
