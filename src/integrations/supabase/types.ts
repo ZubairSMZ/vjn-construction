@@ -14,6 +14,233 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          target: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          target?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          target?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
+      daily_entries: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          labor_total: number
+          percent: number
+          progress_note: string
+          remarks: string | null
+          site_id: string
+          skilled: number
+          supervisor: string
+          unskilled: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          labor_total?: number
+          percent?: number
+          progress_note?: string
+          remarks?: string | null
+          site_id: string
+          skilled?: number
+          supervisor?: string
+          unskilled?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          labor_total?: number
+          percent?: number
+          progress_note?: string
+          remarks?: string | null
+          site_id?: string
+          skilled?: number
+          supervisor?: string
+          unskilled?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_entries_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          date: string
+          description: string
+          id: string
+          method: string
+          site_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          description?: string
+          id?: string
+          method?: string
+          site_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          description?: string
+          id?: string
+          method?: string
+          site_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_purchases: {
+        Row: {
+          cost: number
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          invoice: string
+          material: string
+          qty: number
+          site_id: string
+          supplier: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          invoice?: string
+          material: string
+          qty?: number
+          site_id: string
+          supplier?: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          invoice?: string
+          material?: string
+          qty?: number
+          site_id?: string
+          supplier?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_purchases_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_usage: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          date: string
+          id: string
+          material: string
+          qty: number
+          site_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          material: string
+          qty?: number
+          site_id: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          date?: string
+          id?: string
+          material?: string
+          qty?: number
+          site_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_usage_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -34,6 +261,39 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sites: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          location: string
+          name: string
+          progress: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string
+          name: string
+          progress?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          location?: string
+          name?: string
+          progress?: number
+          status?: string
           updated_at?: string
         }
         Relationships: []
