@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://pwsgjpwijbhqpljrhqsw.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "vjn-construction-mcp",
+      "version": "0.1.0",
+      "title": "VJN Construction Site Tracker"
+    },
+    "tools": [
+      {
+        "name": "list_sites",
+        "title": "List construction sites",
+        "description": "List all construction sites the signed-in user can access, with status and progress.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_site",
+        "title": "Create a construction site",
+        "description": "Create a new construction site with name, location, and status.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Site name"
+            },
+            "location": {
+              "default": "",
+              "description": "Site location or address",
+              "type": "string"
+            },
+            "status": {
+              "default": "active",
+              "type": "string",
+              "enum": [
+                "active",
+                "on-hold",
+                "completed"
+              ]
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_daily_entries",
+        "title": "List daily site entries",
+        "description": "List recent daily site entries (labor, progress) with optional site filter.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional site UUID to filter by. Null for all sites."
+            },
+            "limit": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "site_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_daily_entry",
+        "title": "Log a daily site entry",
+        "description": "Create a daily entry for a site with labor counts, progress %, supervisor and notes.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "date": {
+              "type": "string",
+              "description": "ISO date YYYY-MM-DD"
+            },
+            "supervisor": {
+              "default": "",
+              "type": "string"
+            },
+            "skilled": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "unskilled": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "percent": {
+              "default": 0,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "progress_note": {
+              "default": "",
+              "type": "string"
+            },
+            "remarks": {
+              "default": null,
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "site_id",
+            "date"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_expenses",
+        "title": "List site expenses",
+        "description": "List recent expenses, optionally filtered by site.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "limit": {
+              "default": 50,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          },
+          "required": [
+            "site_id"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "log_expense",
+        "title": "Log a site expense",
+        "description": "Record a site expense with amount, category, description and payment method.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "date": {
+              "type": "string",
+              "description": "ISO date YYYY-MM-DD"
+            },
+            "category": {
+              "default": "General",
+              "type": "string"
+            },
+            "description": {
+              "default": "",
+              "type": "string"
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0
+            },
+            "method": {
+              "default": "Cash",
+              "type": "string"
+            }
+          },
+          "required": [
+            "site_id",
+            "date",
+            "amount"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "material_inventory",
+        "title": "Material inventory balance",
+        "description": "Compute current material stock per site as (purchased - consumed) for each material.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "site_id": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional site UUID to scope inventory. Null for all sites."
+            }
+          },
+          "required": [
+            "site_id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
