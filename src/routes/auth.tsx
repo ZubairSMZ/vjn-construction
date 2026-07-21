@@ -4,8 +4,18 @@ import { HardHat, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   component: AuthPage,
 });
+
+function safeNext(next: string | undefined): string {
+  if (!next) return "/";
+  // Only allow same-origin relative paths.
+  if (!next.startsWith("/") || next.startsWith("//")) return "/";
+  return next;
+}
 
 function AuthPage() {
   const navigate = useNavigate();
