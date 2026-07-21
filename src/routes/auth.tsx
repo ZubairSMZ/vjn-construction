@@ -4,23 +4,11 @@ import { HardHat, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" ? s.next : undefined,
-  }),
   component: AuthPage,
 });
 
-function safeNext(next: string | undefined): string {
-  if (!next) return "/";
-  // Only allow same-origin relative paths.
-  if (!next.startsWith("/") || next.startsWith("//")) return "/";
-  return next;
-}
-
 function AuthPage() {
   const navigate = useNavigate();
-  const { next } = Route.useSearch();
-  const nextPath = safeNext(next);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,15 +20,16 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) window.location.href = nextPath;
+      if (data.user) navigate({ to: "/" });
     });
+    // best-effort: check if any users exist yet by counting user_roles (readable to none w/o auth; fall back silently)
     supabase
       .from("user_roles")
       .select("id", { count: "exact", head: true })
       .then(({ count }) => {
         if (typeof count === "number") setIsFirstUser(count === 0);
       });
-  }, [navigate, nextPath]);
+  }, [navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,21 +43,22 @@ function AuthPage() {
           password,
           options: {
             data: { full_name: fullName || email.split("@")[0] },
-            emailRedirectTo: `${window.location.origin}${nextPath}`,
+            emailRedirectTo: `${window.location.origin}/`,
           },
         });
         if (error) throw error;
+        // Try immediate sign-in (works if email confirmation is disabled)
         const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
         if (signInErr) {
           setInfo("Account created. Please check your email to confirm, then sign in.");
           setMode("signin");
         } else {
-          window.location.href = nextPath;
+          navigate({ to: "/" });
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        window.location.href = nextPath;
+        navigate({ to: "/" });
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -76,7 +66,6 @@ function AuthPage() {
       setLoading(false);
     }
   }
-
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4">
