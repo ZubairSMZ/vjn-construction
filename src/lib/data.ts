@@ -57,7 +57,7 @@ function useRealtime(table: string, key: string) {
   const qc = useQueryClient();
   useEffect(() => {
     const ch = supabase
-      .channel(`rt-${table}`)
+      .channel(`rt-${table}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table }, () => {
         qc.invalidateQueries({ queryKey: [key] });
       })
@@ -65,6 +65,7 @@ function useRealtime(table: string, key: string) {
     return () => { supabase.removeChannel(ch); };
   }, [qc, table, key]);
 }
+
 
 export function useSites() {
   useRealtime("sites", "sites");
