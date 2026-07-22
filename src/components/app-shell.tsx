@@ -15,8 +15,9 @@ import {
   Menu,
   LogOut,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useEntries, useSites, siteName } from "@/lib/data";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
