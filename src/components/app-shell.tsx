@@ -35,6 +35,22 @@ export function AppShell({ children, title, subtitle, actions }: { children: Rea
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
   const [user, setUser] = useState<{ name: string; email: string; role: string; initials: string } | null>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const { data: entries = [] } = useEntries();
+  const { data: sites = [] } = useSites();
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const todayEntries = entries.filter((e) => e.date.slice(0, 10) === todayISO);
+  const issues = todayEntries.filter((e) => (e.remarks ?? "").trim().length > 0);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    function onDown(e: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [notifOpen]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
