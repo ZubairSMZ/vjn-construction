@@ -161,10 +161,64 @@ export function AppShell({ children, title, subtitle, actions }: { children: Rea
           >
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </button>
-          <button className="relative grid place-items-center size-9 rounded-md border border-border hover:bg-muted" aria-label="Notifications">
-            <Bell className="size-4" />
-            <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />
-          </button>
+          <div className="relative" ref={notifRef}>
+            <button
+              onClick={() => setNotifOpen((v) => !v)}
+              className="relative grid place-items-center size-9 rounded-md border border-border hover:bg-muted"
+              aria-label="Notifications"
+            >
+              <Bell className="size-4" />
+              {(todayEntries.length > 0 || issues.length > 0) && (
+                <span className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />
+              )}
+            </button>
+            {notifOpen && (
+              <div className="absolute right-0 mt-2 w-80 sm:w-96 max-h-[70vh] overflow-y-auto rounded-md border border-border bg-popover text-popover-foreground shadow-lg z-50">
+                <div className="px-4 py-3 border-b border-border">
+                  <div className="font-display uppercase tracking-wide text-sm">Today's Updates</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">
+                    {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+                  </div>
+                </div>
+                {todayEntries.length === 0 ? (
+                  <div className="px-4 py-6 text-sm text-muted-foreground">No entries submitted today.</div>
+                ) : (
+                  <>
+                    {issues.length > 0 && (
+                      <div className="px-4 py-2 border-b border-border">
+                        <div className="text-[10px] uppercase tracking-wider text-warning font-semibold mb-2">Issues Reported</div>
+                        <ul className="space-y-2">
+                          {issues.map((e) => (
+                            <li key={`i-${e.id}`} className="text-sm">
+                              <div className="font-semibold">{siteName(sites, e.site_id)}</div>
+                              <div className="text-xs text-muted-foreground">{e.remarks}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div className="px-4 py-2">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Work In Progress</div>
+                      <ul className="space-y-3">
+                        {todayEntries.map((e) => (
+                          <li key={e.id} className="text-sm">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <div className="font-semibold truncate">{siteName(sites, e.site_id)}</div>
+                              <div className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                                {e.labor_total} workers · {e.percent}%
+                              </div>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{e.progress_note || "—"}</div>
+                            <div className="text-[11px] text-muted-foreground/80 mt-0.5">Supervisor: {e.supervisor}</div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </header>
         <main className="px-4 lg:px-8 py-6 lg:py-8">
           {actions && <div className="mb-6 flex flex-wrap gap-2">{actions}</div>}
