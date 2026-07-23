@@ -226,27 +226,38 @@ function EntryForm({ onClose }: { onClose: () => void }) {
 
 
           <Section title="Materials Used (optional)">
-            <Field label="Material"><input className={inputCls} value={mUse.material} onChange={(e) => setMUse({ ...mUse, material: e.target.value })} placeholder="e.g. OPC Cement" /></Field>
-            <Field label="Quantity"><input type="number" className={inputCls} value={mUse.qty} onChange={(e) => setMUse({ ...mUse, qty: Number(e.target.value) })} /></Field>
-            <Field label="Unit">
-              <select className={inputCls} value={mUse.unit} onChange={(e) => setMUse({ ...mUse, unit: e.target.value })}>
-                <option>Bag</option><option>Ton</option><option>Kg</option><option>Piece</option><option>Litre</option>
+            <Field label="Material">
+              <select
+                className={inputCls}
+                value={mUse.material}
+                onChange={(e) => setMUse({ ...mUse, material: e.target.value, unit: defaultUnitFor(e.target.value) })}
+              >
+                <option value="">Select material…</option>
+                {MATERIAL_OPTIONS.map((m) => <option key={m.material} value={m.material}>{m.material}</option>)}
               </select>
             </Field>
+            <Field label="Quantity"><input type="number" className={inputCls} value={mUse.qty} onChange={(e) => setMUse({ ...mUse, qty: Number(e.target.value) })} /></Field>
+            <Field label="Unit"><input className={inputCls} value={mUse.unit} readOnly /></Field>
           </Section>
 
           <Section title="Materials Purchased (optional)">
-            <Field label="Material"><input className={inputCls} value={mBuy.material} onChange={(e) => setMBuy({ ...mBuy, material: e.target.value })} /></Field>
-            <Field label="Quantity"><input type="number" className={inputCls} value={mBuy.qty} onChange={(e) => setMBuy({ ...mBuy, qty: Number(e.target.value) })} /></Field>
-            <Field label="Unit">
-              <select className={inputCls} value={mBuy.unit} onChange={(e) => setMBuy({ ...mBuy, unit: e.target.value })}>
-                <option>Bag</option><option>Ton</option><option>Kg</option><option>Piece</option>
+            <Field label="Material">
+              <select
+                className={inputCls}
+                value={mBuy.material}
+                onChange={(e) => setMBuy({ ...mBuy, material: e.target.value, unit: defaultUnitFor(e.target.value) })}
+              >
+                <option value="">Select material…</option>
+                {MATERIAL_OPTIONS.map((m) => <option key={m.material} value={m.material}>{m.material}</option>)}
               </select>
             </Field>
+            <Field label="Quantity"><input type="number" className={inputCls} value={mBuy.qty} onChange={(e) => setMBuy({ ...mBuy, qty: Number(e.target.value) })} /></Field>
+            <Field label="Unit"><input className={inputCls} value={mBuy.unit} readOnly /></Field>
             <Field label="Supplier"><input className={inputCls} value={mBuy.supplier} onChange={(e) => setMBuy({ ...mBuy, supplier: e.target.value })} /></Field>
             <Field label="Purchase Cost (₹)"><input type="number" className={inputCls} value={mBuy.cost} onChange={(e) => setMBuy({ ...mBuy, cost: Number(e.target.value) })} /></Field>
             <Field label="Invoice Number"><input className={inputCls} value={mBuy.invoice} onChange={(e) => setMBuy({ ...mBuy, invoice: e.target.value })} placeholder="INV-…" /></Field>
           </Section>
+
 
           <Section title="Expense (optional)">
             <Field label="Category">
