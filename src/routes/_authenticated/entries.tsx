@@ -206,11 +206,24 @@ function EntryForm({ onClose }: { onClose: () => void }) {
               </select>
             </Field>
             <Field label="Supervisor"><input className={inputCls} value={supervisor} onChange={(e) => setSupervisor(e.target.value)} placeholder="e.g. Anil K." /></Field>
-            <Field label="Skilled Workers"><input type="number" min={0} className={inputCls} value={skilled} onChange={(e) => setSkilled(Number(e.target.value))} /></Field>
-            <Field label="Unskilled Workers"><input type="number" min={0} className={inputCls} value={unskilled} onChange={(e) => setUnskilled(Number(e.target.value))} /></Field>
-            <Field label="Total Present"><input type="number" className={inputCls} value={skilled + unskilled} readOnly /></Field>
+            <Field label="Total Present"><input type="number" className={inputCls} value={sumWorkers(workers)} readOnly /></Field>
             <div className="md:col-span-3"><Field label="Remarks"><textarea className={inputCls + " h-20 py-2"} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Optional…" /></Field></div>
           </Section>
+
+          <Section title="Workers by Trade">
+            {WORKER_TRADES.map((trade) => (
+              <Field key={trade} label={trade}>
+                <input
+                  type="number"
+                  min={0}
+                  className={inputCls}
+                  value={workers[trade] ?? 0}
+                  onChange={(e) => setWorkers({ ...workers, [trade]: Number(e.target.value) })}
+                />
+              </Field>
+            ))}
+          </Section>
+
 
           <Section title="Materials Used (optional)">
             <Field label="Material"><input className={inputCls} value={mUse.material} onChange={(e) => setMUse({ ...mUse, material: e.target.value })} placeholder="e.g. OPC Cement" /></Field>
