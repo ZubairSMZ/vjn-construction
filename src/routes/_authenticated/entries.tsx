@@ -159,8 +159,9 @@ function EntryForm({ onClose }: { onClose: () => void }) {
   const [remarks, setRemarks] = useState("");
 
   const firstMat = MATERIAL_OPTIONS[0];
-  const [mUse, setMUse] = useState({ material: "", qty: 0, unit: firstMat.unit });
-  const [mBuy, setMBuy] = useState({ material: "", qty: 0, unit: firstMat.unit, supplier: "", cost: 0, invoice: "" });
+  const [mUse, setMUse] = useState<{ material: string; qty: number; unit: string }>({ material: "", qty: 0, unit: firstMat.unit });
+  const [mBuy, setMBuy] = useState<{ material: string; qty: number; unit: string; supplier: string; cost: number; invoice: string }>({ material: "", qty: 0, unit: firstMat.unit, supplier: "", cost: 0, invoice: "" });
+
 
   const [exp, setExp] = useState({ category: "Labor Wages", amount: 0, method: "UPI", description: "" });
   const [err, setErr] = useState<string | null>(null);
