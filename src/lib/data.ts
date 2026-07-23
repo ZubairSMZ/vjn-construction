@@ -301,6 +301,10 @@ export function computeTrends(entries: DailyEntry[], expenses: Expense[], purcha
 
 export function computeInventory(purchases: MaterialPurchase[], usage: MaterialUsage[]) {
   const map = new Map<string, { material: string; unit: string; purchased: number; consumed: number }>();
+  // Seed all known materials so finished ones still show as 0.
+  MATERIAL_OPTIONS.forEach((m) => {
+    map.set(`${m.material}::${m.unit}`, { material: m.material, unit: m.unit, purchased: 0, consumed: 0 });
+  });
   purchases.forEach((p) => {
     const k = `${p.material}::${p.unit}`;
     const cur = map.get(k) ?? { material: p.material, unit: p.unit, purchased: 0, consumed: 0 };
@@ -313,5 +317,10 @@ export function computeInventory(purchases: MaterialPurchase[], usage: MaterialU
     cur.consumed += Number(u.qty);
     map.set(k, cur);
   });
-  return Array.from(map.values()).map((r) => ({ ...r, opening: 0, balance: r.purchased - r.consumed }));
+  return Array.from(map.values()).map((r) => ({
+    ...r,
+    opening: 0,
+    balance: Math.max(0, r.purchased - r.consumed),
+  }));
 }
+
