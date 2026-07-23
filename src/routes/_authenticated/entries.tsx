@@ -68,12 +68,13 @@ function Entries() {
                     <td className="py-3 tabular-nums">{new Date(e.date).toLocaleDateString("en-IN")}</td>
                     <td className="py-3 font-medium">{siteName(sites, e.site_id)}</td>
                     <td className="py-3 text-muted-foreground">{e.supervisor || "—"}</td>
-                    <td className="py-3 text-right tabular-nums">
-                      <span className="font-semibold">{e.labor_total}</span>
-                      <span className="text-muted-foreground"> ({e.skilled}/{e.unskilled})</span>
+                    <td className="py-3 text-right tabular-nums font-semibold">{e.labor_total}</td>
+                    <td className="py-3 text-xs text-muted-foreground max-w-xs">
+                      {Object.entries(e.workers ?? {}).filter(([, n]) => Number(n) > 0).map(([t, n]) => `${t}·${n}`).join(", ") || "—"}
                     </td>
                     <td className="py-3 text-right"><Badge tone="primary">{e.percent}%</Badge></td>
                     <td className="py-3 pl-4 max-w-sm truncate">{e.progress_note}</td>
+
                     <td className="py-3 text-muted-foreground text-xs">{timeAgo(e.created_at)}</td>
                   </tr>
                 ))}
