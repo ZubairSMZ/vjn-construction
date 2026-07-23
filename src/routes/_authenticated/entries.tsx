@@ -7,6 +7,8 @@ import {
   useEntries, useSites, useUsage, usePurchases, useExpenses,
   useCreateEntry, siteName, fmtCurrency, timeAgo, useMe,
 } from "@/lib/data";
+import { WORKER_TRADES, MATERIAL_OPTIONS, defaultUnitFor, type WorkersMap, sumWorkers } from "@/lib/constants";
+
 
 export const Route = createFileRoute("/_authenticated/entries")({
   head: () => ({ meta: [{ title: "Daily Entries — SiteTrack" }] }),
