@@ -7,6 +7,8 @@ import {
   useEntries, useSites, useExpenses, usePurchases, useUsage,
   fmtCurrency, siteName,
 } from "@/lib/data";
+import { WORKER_TRADES } from "@/lib/constants";
+
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports — SiteTrack" }] }),
