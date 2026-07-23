@@ -185,13 +185,14 @@ function EntryForm({ onClose }: { onClose: () => void }) {
             if (!siteId) return setErr("Please select a site");
             try {
               await create.mutateAsync({
-                date, site_id: siteId, supervisor, skilled, unskilled, percent,
+                date, site_id: siteId, supervisor, workers, percent,
                 progress_note: progressNote, remarks,
                 usage: mUse.material.trim() && mUse.qty > 0 ? mUse : null,
                 purchase: mBuy.material.trim() && mBuy.qty > 0 ? mBuy : null,
                 expense: exp.amount > 0 ? exp : null,
                 site_name: sites.find((s) => s.id === siteId)?.name,
               });
+
               onClose();
             } catch (ex: any) { setErr(ex.message ?? "Failed"); }
           }}
