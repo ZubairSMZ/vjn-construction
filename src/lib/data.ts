@@ -91,7 +91,7 @@ export function useEntries() {
     queryFn: async (): Promise<DailyEntry[]> => {
       const { data, error } = await supabase.from("daily_entries").select("*").order("date", { ascending: false }).order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as DailyEntry[];
+      return (data ?? []).map((r: any) => ({ ...r, workers: (r.workers ?? {}) as WorkersMap })) as DailyEntry[];
     },
   });
 }
