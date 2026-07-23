@@ -22,12 +22,14 @@ export type DailyEntry = {
   skilled: number;
   unskilled: number;
   labor_total: number;
+  workers: WorkersMap;
   percent: number;
   progress_note: string;
   remarks: string | null;
   created_by: string | null;
   created_at: string;
 };
+
 export type MaterialUsage = {
   id: string; date: string; site_id: string; material: string; qty: number; unit: string; created_by: string | null; created_at: string;
 };
