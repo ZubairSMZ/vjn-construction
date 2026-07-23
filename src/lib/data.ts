@@ -171,7 +171,8 @@ export function useCreateEntry() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: {
-      date: string; site_id: string; supervisor: string; skilled: number; unskilled: number;
+      date: string; site_id: string; supervisor: string;
+      workers: WorkersMap;
       percent: number; progress_note: string; remarks?: string;
       usage?: { material: string; qty: number; unit: string } | null;
       purchase?: { material: string; qty: number; unit: string; supplier: string; cost: number; invoice: string } | null;
@@ -180,20 +181,22 @@ export function useCreateEntry() {
     }) => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Not signed in");
-      const labor_total = (input.skilled || 0) + (input.unskilled || 0);
+      const labor_total = sumWorkers(input.workers);
       const base = { created_by: u.user.id, site_id: input.site_id, date: input.date };
 
       const { error: e1 } = await supabase.from("daily_entries").insert({
         ...base,
         supervisor: input.supervisor,
-        skilled: input.skilled,
-        unskilled: input.unskilled,
+        skilled: 0,
+        unskilled: 0,
         labor_total,
+        workers: input.workers as any,
         percent: input.percent,
         progress_note: input.progress_note,
         remarks: input.remarks ?? "",
       });
       if (e1) throw e1;
+
 
       if (input.usage && input.usage.material.trim()) {
         const { error } = await supabase.from("material_usage").insert({ ...base, ...input.usage });
