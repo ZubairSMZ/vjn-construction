@@ -54,10 +54,12 @@ function Entries() {
                   <th className="text-left py-2 font-medium">Date</th>
                   <th className="text-left py-2 font-medium">Site</th>
                   <th className="text-left py-2 font-medium">Supervisor</th>
-                  <th className="text-right py-2 font-medium">Labor (S/U)</th>
+                  <th className="text-right py-2 font-medium">Workers</th>
+                  <th className="text-left py-2 font-medium">Trades Present</th>
                   <th className="text-right py-2 font-medium">Progress</th>
                   <th className="text-left py-2 font-medium pl-4">Note</th>
                   <th className="text-left py-2 font-medium">Submitted</th>
+
                 </tr>
               </thead>
               <tbody>
