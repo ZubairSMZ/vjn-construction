@@ -56,6 +56,7 @@ export type Database = {
           supervisor: string
           unskilled: number
           updated_at: string
+          workers: Json
         }
         Insert: {
           created_at?: string
@@ -71,6 +72,7 @@ export type Database = {
           supervisor?: string
           unskilled?: number
           updated_at?: string
+          workers?: Json
         }
         Update: {
           created_at?: string
@@ -86,6 +88,7 @@ export type Database = {
           supervisor?: string
           unskilled?: number
           updated_at?: string
+          workers?: Json
         }
         Relationships: [
           {
