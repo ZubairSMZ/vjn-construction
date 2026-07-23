@@ -153,14 +153,15 @@ function EntryForm({ onClose }: { onClose: () => void }) {
   const [siteId, setSiteId] = useState(sites[0]?.id ?? "");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [supervisor, setSupervisor] = useState(me?.name ?? "");
-  const [skilled, setSkilled] = useState(0);
-  const [unskilled, setUnskilled] = useState(0);
+  const [workers, setWorkers] = useState<WorkersMap>({});
   const [percent, setPercent] = useState(0);
   const [progressNote, setProgressNote] = useState("");
   const [remarks, setRemarks] = useState("");
 
-  const [mUse, setMUse] = useState({ material: "", qty: 0, unit: "Bag" });
-  const [mBuy, setMBuy] = useState({ material: "", qty: 0, unit: "Bag", supplier: "", cost: 0, invoice: "" });
+  const firstMat = MATERIAL_OPTIONS[0];
+  const [mUse, setMUse] = useState({ material: "", qty: 0, unit: firstMat.unit });
+  const [mBuy, setMBuy] = useState({ material: "", qty: 0, unit: firstMat.unit, supplier: "", cost: 0, invoice: "" });
+
   const [exp, setExp] = useState({ category: "Labor Wages", amount: 0, method: "UPI", description: "" });
   const [err, setErr] = useState<string | null>(null);
 
