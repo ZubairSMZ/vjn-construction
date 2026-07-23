@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { WorkersMap } from "@/lib/constants";
+import { sumWorkers, MATERIAL_OPTIONS } from "@/lib/constants";
+
+
 
 export type Site = {
   id: string;
@@ -19,12 +23,14 @@ export type DailyEntry = {
   skilled: number;
   unskilled: number;
   labor_total: number;
+  workers: WorkersMap;
   percent: number;
   progress_note: string;
   remarks: string | null;
   created_by: string | null;
   created_at: string;
 };
+
 export type MaterialUsage = {
   id: string; date: string; site_id: string; material: string; qty: number; unit: string; created_by: string | null; created_at: string;
 };
@@ -86,7 +92,7 @@ export function useEntries() {
     queryFn: async (): Promise<DailyEntry[]> => {
       const { data, error } = await supabase.from("daily_entries").select("*").order("date", { ascending: false }).order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as DailyEntry[];
+      return (data ?? []).map((r: any) => ({ ...r, workers: (r.workers ?? {}) as WorkersMap })) as DailyEntry[];
     },
   });
 }
@@ -166,7 +172,8 @@ export function useCreateEntry() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: {
-      date: string; site_id: string; supervisor: string; skilled: number; unskilled: number;
+      date: string; site_id: string; supervisor: string;
+      workers: WorkersMap;
       percent: number; progress_note: string; remarks?: string;
       usage?: { material: string; qty: number; unit: string } | null;
       purchase?: { material: string; qty: number; unit: string; supplier: string; cost: number; invoice: string } | null;
@@ -175,20 +182,22 @@ export function useCreateEntry() {
     }) => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Not signed in");
-      const labor_total = (input.skilled || 0) + (input.unskilled || 0);
+      const labor_total = sumWorkers(input.workers);
       const base = { created_by: u.user.id, site_id: input.site_id, date: input.date };
 
       const { error: e1 } = await supabase.from("daily_entries").insert({
         ...base,
         supervisor: input.supervisor,
-        skilled: input.skilled,
-        unskilled: input.unskilled,
+        skilled: 0,
+        unskilled: 0,
         labor_total,
+        workers: input.workers as any,
         percent: input.percent,
         progress_note: input.progress_note,
         remarks: input.remarks ?? "",
       });
       if (e1) throw e1;
+
 
       if (input.usage && input.usage.material.trim()) {
         const { error } = await supabase.from("material_usage").insert({ ...base, ...input.usage });
@@ -293,6 +302,10 @@ export function computeTrends(entries: DailyEntry[], expenses: Expense[], purcha
 
 export function computeInventory(purchases: MaterialPurchase[], usage: MaterialUsage[]) {
   const map = new Map<string, { material: string; unit: string; purchased: number; consumed: number }>();
+  // Seed all known materials so finished ones still show as 0.
+  MATERIAL_OPTIONS.forEach((m) => {
+    map.set(`${m.material}::${m.unit}`, { material: m.material, unit: m.unit, purchased: 0, consumed: 0 });
+  });
   purchases.forEach((p) => {
     const k = `${p.material}::${p.unit}`;
     const cur = map.get(k) ?? { material: p.material, unit: p.unit, purchased: 0, consumed: 0 };
@@ -305,5 +318,10 @@ export function computeInventory(purchases: MaterialPurchase[], usage: MaterialU
     cur.consumed += Number(u.qty);
     map.set(k, cur);
   });
-  return Array.from(map.values()).map((r) => ({ ...r, opening: 0, balance: r.purchased - r.consumed }));
+  return Array.from(map.values()).map((r) => ({
+    ...r,
+    opening: 0,
+    balance: Math.max(0, r.purchased - r.consumed),
+  }));
 }
+

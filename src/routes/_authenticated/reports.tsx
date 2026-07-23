@@ -7,6 +7,8 @@ import {
   useEntries, useSites, useExpenses, usePurchases, useUsage,
   fmtCurrency, siteName,
 } from "@/lib/data";
+import { WORKER_TRADES } from "@/lib/constants";
+
 
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({ meta: [{ title: "Reports — SiteTrack" }] }),
@@ -92,7 +94,52 @@ function Reports() {
         ))}
       </div>
 
+      <Panel title="Attendance by Trade (filtered range)" className="mt-4">
+        {fEntries.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No entries in the selected range.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                <tr className="border-b border-border">
+                  <th className="text-left py-2 font-medium">Date</th>
+                  <th className="text-left py-2 font-medium">Site</th>
+                  {WORKER_TRADES.map((t) => (
+                    <th key={t} className="text-right py-2 font-medium">{t}</th>
+                  ))}
+                  <th className="text-right py-2 font-medium">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fEntries.map((e) => (
+                  <tr key={e.id} className="border-b border-border/60">
+                    <td className="py-2 tabular-nums">{new Date(e.date).toLocaleDateString("en-IN")}</td>
+                    <td className="py-2">{siteName(sites, e.site_id)}</td>
+                    {WORKER_TRADES.map((t) => {
+                      const n = Number(e.workers?.[t] ?? 0);
+                      return <td key={t} className="py-2 text-right tabular-nums">{n > 0 ? n : "—"}</td>;
+                    })}
+                    <td className="py-2 text-right tabular-nums font-semibold">{e.labor_total}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t border-border font-semibold">
+                  <td className="py-2" colSpan={2}>Totals</td>
+                  {WORKER_TRADES.map((t) => {
+                    const sum = fEntries.reduce((s, e) => s + Number(e.workers?.[t] ?? 0), 0);
+                    return <td key={t} className="py-2 text-right tabular-nums">{sum || "—"}</td>;
+                  })}
+                  <td className="py-2 text-right tabular-nums">{totalLabor}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </Panel>
+
       <p className="text-xs text-muted-foreground mt-6">CSV files open directly in Excel, Google Sheets, or Numbers.</p>
     </AppShell>
   );
 }
+

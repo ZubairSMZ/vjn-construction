@@ -7,6 +7,8 @@ import {
   useEntries, useSites, useUsage, usePurchases, useExpenses,
   useCreateEntry, siteName, fmtCurrency, timeAgo, useMe,
 } from "@/lib/data";
+import { WORKER_TRADES, MATERIAL_OPTIONS, defaultUnitFor, type WorkersMap, sumWorkers } from "@/lib/constants";
+
 
 export const Route = createFileRoute("/_authenticated/entries")({
   head: () => ({ meta: [{ title: "Daily Entries — SiteTrack" }] }),
@@ -52,10 +54,12 @@ function Entries() {
                   <th className="text-left py-2 font-medium">Date</th>
                   <th className="text-left py-2 font-medium">Site</th>
                   <th className="text-left py-2 font-medium">Supervisor</th>
-                  <th className="text-right py-2 font-medium">Labor (S/U)</th>
+                  <th className="text-right py-2 font-medium">Workers</th>
+                  <th className="text-left py-2 font-medium">Trades Present</th>
                   <th className="text-right py-2 font-medium">Progress</th>
                   <th className="text-left py-2 font-medium pl-4">Note</th>
                   <th className="text-left py-2 font-medium">Submitted</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -64,12 +68,13 @@ function Entries() {
                     <td className="py-3 tabular-nums">{new Date(e.date).toLocaleDateString("en-IN")}</td>
                     <td className="py-3 font-medium">{siteName(sites, e.site_id)}</td>
                     <td className="py-3 text-muted-foreground">{e.supervisor || "—"}</td>
-                    <td className="py-3 text-right tabular-nums">
-                      <span className="font-semibold">{e.labor_total}</span>
-                      <span className="text-muted-foreground"> ({e.skilled}/{e.unskilled})</span>
+                    <td className="py-3 text-right tabular-nums font-semibold">{e.labor_total}</td>
+                    <td className="py-3 text-xs text-muted-foreground max-w-xs">
+                      {Object.entries(e.workers ?? {}).filter(([, n]) => Number(n) > 0).map(([t, n]) => `${t}·${n}`).join(", ") || "—"}
                     </td>
                     <td className="py-3 text-right"><Badge tone="primary">{e.percent}%</Badge></td>
                     <td className="py-3 pl-4 max-w-sm truncate">{e.progress_note}</td>
+
                     <td className="py-3 text-muted-foreground text-xs">{timeAgo(e.created_at)}</td>
                   </tr>
                 ))}
@@ -148,14 +153,16 @@ function EntryForm({ onClose }: { onClose: () => void }) {
   const [siteId, setSiteId] = useState(sites[0]?.id ?? "");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [supervisor, setSupervisor] = useState(me?.name ?? "");
-  const [skilled, setSkilled] = useState(0);
-  const [unskilled, setUnskilled] = useState(0);
+  const [workers, setWorkers] = useState<WorkersMap>({});
   const [percent, setPercent] = useState(0);
   const [progressNote, setProgressNote] = useState("");
   const [remarks, setRemarks] = useState("");
 
-  const [mUse, setMUse] = useState({ material: "", qty: 0, unit: "Bag" });
-  const [mBuy, setMBuy] = useState({ material: "", qty: 0, unit: "Bag", supplier: "", cost: 0, invoice: "" });
+  const firstMat = MATERIAL_OPTIONS[0];
+  const [mUse, setMUse] = useState<{ material: string; qty: number; unit: string }>({ material: "", qty: 0, unit: firstMat.unit });
+  const [mBuy, setMBuy] = useState<{ material: string; qty: number; unit: string; supplier: string; cost: number; invoice: string }>({ material: "", qty: 0, unit: firstMat.unit, supplier: "", cost: 0, invoice: "" });
+
+
   const [exp, setExp] = useState({ category: "Labor Wages", amount: 0, method: "UPI", description: "" });
   const [err, setErr] = useState<string | null>(null);
 
@@ -178,13 +185,14 @@ function EntryForm({ onClose }: { onClose: () => void }) {
             if (!siteId) return setErr("Please select a site");
             try {
               await create.mutateAsync({
-                date, site_id: siteId, supervisor, skilled, unskilled, percent,
+                date, site_id: siteId, supervisor, workers, percent,
                 progress_note: progressNote, remarks,
                 usage: mUse.material.trim() && mUse.qty > 0 ? mUse : null,
                 purchase: mBuy.material.trim() && mBuy.qty > 0 ? mBuy : null,
                 expense: exp.amount > 0 ? exp : null,
                 site_name: sites.find((s) => s.id === siteId)?.name,
               });
+
               onClose();
             } catch (ex: any) { setErr(ex.message ?? "Failed"); }
           }}
@@ -198,34 +206,58 @@ function EntryForm({ onClose }: { onClose: () => void }) {
               </select>
             </Field>
             <Field label="Supervisor"><input className={inputCls} value={supervisor} onChange={(e) => setSupervisor(e.target.value)} placeholder="e.g. Anil K." /></Field>
-            <Field label="Skilled Workers"><input type="number" min={0} className={inputCls} value={skilled} onChange={(e) => setSkilled(Number(e.target.value))} /></Field>
-            <Field label="Unskilled Workers"><input type="number" min={0} className={inputCls} value={unskilled} onChange={(e) => setUnskilled(Number(e.target.value))} /></Field>
-            <Field label="Total Present"><input type="number" className={inputCls} value={skilled + unskilled} readOnly /></Field>
+            <Field label="Total Present"><input type="number" className={inputCls} value={sumWorkers(workers)} readOnly /></Field>
             <div className="md:col-span-3"><Field label="Remarks"><textarea className={inputCls + " h-20 py-2"} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Optional…" /></Field></div>
           </Section>
 
+          <Section title="Workers by Trade">
+            {WORKER_TRADES.map((trade) => (
+              <Field key={trade} label={trade}>
+                <input
+                  type="number"
+                  min={0}
+                  className={inputCls}
+                  value={workers[trade] ?? 0}
+                  onChange={(e) => setWorkers({ ...workers, [trade]: Number(e.target.value) })}
+                />
+              </Field>
+            ))}
+          </Section>
+
+
           <Section title="Materials Used (optional)">
-            <Field label="Material"><input className={inputCls} value={mUse.material} onChange={(e) => setMUse({ ...mUse, material: e.target.value })} placeholder="e.g. OPC Cement" /></Field>
-            <Field label="Quantity"><input type="number" className={inputCls} value={mUse.qty} onChange={(e) => setMUse({ ...mUse, qty: Number(e.target.value) })} /></Field>
-            <Field label="Unit">
-              <select className={inputCls} value={mUse.unit} onChange={(e) => setMUse({ ...mUse, unit: e.target.value })}>
-                <option>Bag</option><option>Ton</option><option>Kg</option><option>Piece</option><option>Litre</option>
+            <Field label="Material">
+              <select
+                className={inputCls}
+                value={mUse.material}
+                onChange={(e) => setMUse({ ...mUse, material: e.target.value, unit: defaultUnitFor(e.target.value) })}
+              >
+                <option value="">Select material…</option>
+                {MATERIAL_OPTIONS.map((m) => <option key={m.material} value={m.material}>{m.material}</option>)}
               </select>
             </Field>
+            <Field label="Quantity"><input type="number" className={inputCls} value={mUse.qty} onChange={(e) => setMUse({ ...mUse, qty: Number(e.target.value) })} /></Field>
+            <Field label="Unit"><input className={inputCls} value={mUse.unit} readOnly /></Field>
           </Section>
 
           <Section title="Materials Purchased (optional)">
-            <Field label="Material"><input className={inputCls} value={mBuy.material} onChange={(e) => setMBuy({ ...mBuy, material: e.target.value })} /></Field>
-            <Field label="Quantity"><input type="number" className={inputCls} value={mBuy.qty} onChange={(e) => setMBuy({ ...mBuy, qty: Number(e.target.value) })} /></Field>
-            <Field label="Unit">
-              <select className={inputCls} value={mBuy.unit} onChange={(e) => setMBuy({ ...mBuy, unit: e.target.value })}>
-                <option>Bag</option><option>Ton</option><option>Kg</option><option>Piece</option>
+            <Field label="Material">
+              <select
+                className={inputCls}
+                value={mBuy.material}
+                onChange={(e) => setMBuy({ ...mBuy, material: e.target.value, unit: defaultUnitFor(e.target.value) })}
+              >
+                <option value="">Select material…</option>
+                {MATERIAL_OPTIONS.map((m) => <option key={m.material} value={m.material}>{m.material}</option>)}
               </select>
             </Field>
+            <Field label="Quantity"><input type="number" className={inputCls} value={mBuy.qty} onChange={(e) => setMBuy({ ...mBuy, qty: Number(e.target.value) })} /></Field>
+            <Field label="Unit"><input className={inputCls} value={mBuy.unit} readOnly /></Field>
             <Field label="Supplier"><input className={inputCls} value={mBuy.supplier} onChange={(e) => setMBuy({ ...mBuy, supplier: e.target.value })} /></Field>
             <Field label="Purchase Cost (₹)"><input type="number" className={inputCls} value={mBuy.cost} onChange={(e) => setMBuy({ ...mBuy, cost: Number(e.target.value) })} /></Field>
             <Field label="Invoice Number"><input className={inputCls} value={mBuy.invoice} onChange={(e) => setMBuy({ ...mBuy, invoice: e.target.value })} placeholder="INV-…" /></Field>
           </Section>
+
 
           <Section title="Expense (optional)">
             <Field label="Category">
